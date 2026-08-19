@@ -52,7 +52,15 @@ const registerUserController = async (req, res) => {
       { expiresIn: "1d" }
     )
 
-    res.cookie("token", token)
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    };
+
+    res.cookie("token", token, cookieOptions);
     return res.status(200).json({
       message: 'Registration checks passed. Awaiting final creation logic.',
       user: {
@@ -112,7 +120,15 @@ const loginUserController = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.cookie("token", token);
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    };
+
+    res.cookie("token", token, cookieOptions);
     return res.status(200).json({
       message: 'Login successful',
       user: {
@@ -138,7 +154,12 @@ const logoutUserController = async (req, res) => {
   try {
     const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
-    res.clearCookie("token");
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax'
+    });
 
     if (!token) {
       return res.status(200).json({

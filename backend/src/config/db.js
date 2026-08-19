@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 const dns = require('dns');
 
-// Programmatically set DNS servers to bypass local/ISP DNS issues with SRV records
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// Programmatically set DNS servers to bypass local/ISP DNS issues with SRV records (safe for serverless)
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+  console.warn('Unable to set custom DNS servers:', e.message);
+}
 
 const connectDB = async () => {
   let mongodbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/resume_analyzer';
