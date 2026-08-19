@@ -1,5 +1,4 @@
 const { GoogleGenAI } = require("@google/genai")
-const puppeteer = require("puppeteer")
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY || process.env.GOOGLE_API_KEY
@@ -133,7 +132,11 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 async function generatePdfFromHtml(htmlContent) {
-    const browser = await puppeteer.launch()
+    const puppeteerModule = await import("puppeteer")
+    const puppeteer = puppeteerModule.default || puppeteerModule
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    })
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" })
 
